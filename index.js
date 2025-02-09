@@ -1,29 +1,38 @@
+import {Bot} from 'https://bundle.deno.dev/https://raw.githubusercontent.com/grammyjs/grammY/v1.34.1/src/mod.ts';
+
 const valueElement = document.getElementById('value');
 const infoElement = document.getElementById('info');
-const inputElement = document.getElementById('input');
+const fileElement = document.getElementById('file');
 const testButton = document.getElementById('test');
 
-inputElement.addEventListener('change', function (e) {
-    const reader = new FileReader();
-    reader.onload = function (e) {
-        const {url, value, delay} = JSON.parse(e.target.result);
-        console.log(url, value, delay);
-        startInterval(url, value, delay);
-    };
-    const file = e.target.files?.[0];
-    file && reader.readAsText(file);
-}, false);
-
-testButton.addEventListener('click', () => notify('Test!'));
-
-let serviceWorkerRegistration, counter = 0;
+let serviceWorkerRegistration, telegram, counter = 0;
 
 Promise.all([
     navigator.serviceWorker.register('worker.js'),
     Notification.requestPermission()
-]).then(([r]) => serviceWorkerRegistration = r);
+]).then(function ([r]) {
+    serviceWorkerRegistration = r;
+    testButton.addEventListener('click', () => notify('Test!'));
+    fileElement.addEventListener('change', start, false);
+});
 
-const notify = (message) => serviceWorkerRegistration.showNotification(message);
+function start(event) {
+    const reader = new FileReader();
+    reader.onload = function (loadEvent) {
+        const {url, value, delay, ...channels} = JSON.parse(loadEvent.target.result);
+        ({telegram} = channels);
+        telegram.bot = new Bot(telegram.token);
+        startInterval(url, value, delay);
+    };
+    reader.readAsText(event.target.files[0]);
+}
+
+function notify(message) {
+    if (telegram) {
+        telegram.bot.api.sendMessage(telegram.userId, message);
+    }
+    serviceWorkerRegistration.showNotification(message);
+}
 
 const startInterval = (url, value, delay) => setInterval((function f() {
     fetch(url).then(r => r.text()).then(text => {
@@ -35,7 +44,7 @@ const startInterval = (url, value, delay) => setInterval((function f() {
         if (text !== value) {
             return notify('New response returned!');
         }
-        if (counter % 100 === 0) {
+        if (counter % 1000 === 0) {
             return notify('Test!');
         }
     });

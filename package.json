@@ -1,0 +1,7 @@
+{
+  "name": "notify",
+  "version": "1.0.0",
+  "description": "Push notifications standalone app",
+  "main": "index.js",
+  "author": "Vanni Giachin"
+}
