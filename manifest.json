@@ -2,7 +2,7 @@
   "lang": "en-us",
   "name": "notify",
   "short_name": "notify",
-  "description": "Basic notification app",
+  "description": "Push notifications standalone app",
   "scope": "/notify/",
   "start_url": "/notify/",
   "background_color": "#161616",

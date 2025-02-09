@@ -1,0 +1,9 @@
+{
+  "url": "url to fetch",
+  "value": "text response to monitor",
+  "delay": 60000,
+  "telegram": {
+    "userId": "see @getidsbot",
+    "token": "see @BotFather"
+  }
+}
